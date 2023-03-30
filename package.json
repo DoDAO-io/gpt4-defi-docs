@@ -1,0 +1,30 @@
+{
+  "name": "gpt4-defi-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "run": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DoDAO-io/gpt4-defi-docs.git"
+  },
+  "keywords": [],
+  "author": "robin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DoDAO-io/gpt4-defi-docs/issues"
+  },
+  "homepage": "https://github.com/DoDAO-io/gpt4-defi-docs#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.22",
+    "prettier": "2.8.7",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.3"
+  }
+}
