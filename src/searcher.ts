@@ -7,7 +7,7 @@ import { PineconeStore } from 'langchain/vectorstores';
 
 dotenv.config();
 
-async function search() {
+export async function search() {
   const client = new PineconeClient();
   await client.init({
     apiKey: process.env.PINECONE_API_KEY!,
@@ -19,8 +19,7 @@ async function search() {
 
   const model = new OpenAI();
   const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-    k: 1,
-    returnSourceDocuments: true,
+    returnSourceDocuments: false,
   });
   const response = await chain.call({ query: 'What is impermanent loss?' });
   console.log(response);
