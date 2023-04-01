@@ -19,7 +19,8 @@ export async function search() {
 
   const model = new OpenAI();
   const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-    returnSourceDocuments: false,
+    k: 3,
+    returnSourceDocuments: true,
   });
   const response = await chain.call({ query: 'What is impermanent loss?' });
   console.log(response);

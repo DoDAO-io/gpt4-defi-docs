@@ -79,6 +79,7 @@ export async function indexDocuments() {
   let pineconeStore = await PineconeStore.fromDocuments(documents, new OpenAIEmbeddings(), {
     pineconeIndex,
   });
+  console.log('done indexing documents');
 
   console.log('textKey', pineconeStore.textKey);
 }
