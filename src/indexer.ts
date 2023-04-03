@@ -4,7 +4,7 @@ import { PineconeClient } from '@pinecone-database/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings';
 import { RecursiveCharacterTextSplitter, TextSplitter, TokenTextSplitter } from 'langchain/text_splitter';
 import { PineconeStore } from 'langchain/vectorstores';
-import { PuppeteerWebBaseLoader } from 'langchain/document_loaders';
+import { PuppeteerWebBaseLoader, GithubRepoLoader, GitbookLoader } from 'langchain/document_loaders';
 import { Browser, Page } from 'puppeteer';
 import { Document as LGCDocument } from 'langchain/document';
 import * as dotenv from 'dotenv';
@@ -30,6 +30,16 @@ const urls = [
   // 'https://www.zenledger.io/blog/what-is-impermanent-loss-in-defi',
 ];
 
+async function split(docs: LGCDocument[]){
+    const splitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+    });
+
+    const output = await splitter.splitDocuments(docs);
+    return output;
+}
+
 async function loadDocuments(urls: { url: string; xpath: string }[]): Promise<LGCDocument[]> {
   let allDocs: LGCDocument[] = [];
   for (const url of urls) {
@@ -50,15 +60,30 @@ async function loadDocuments(urls: { url: string; xpath: string }[]): Promise<LG
     });
     console.log('downloaded document : ', url);
     const puppeteerDocs: LGCDocument[] = await loader.load();
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-      chunkOverlap: 200,
-    });
 
-    const output = await splitter.splitDocuments(puppeteerDocs);
+    const output = await split(puppeteerDocs);
 
     allDocs = allDocs.concat(output);
   }
+  const githubLoader = new GithubRepoLoader("https://github.com/Uniswap/v3-core",
+    { branch: "main", recursive: false, unknown: "warn" }
+  );
+  const githubDocs : LGCDocument[] = await githubLoader.load();
+
+  const githubOutput = await split(githubDocs);
+
+  allDocs = allDocs.concat(githubOutput);
+
+  const gitbookLoader = new GitbookLoader("https://docs.uniswap.org/", {
+    shouldLoadAllPaths: true,
+  });
+
+  const gitbookDocs : LGCDocument[] = await gitbookLoader.load();
+  
+  const gitbookOutput = await split(gitbookDocs);
+
+  allDocs = allDocs.concat(gitbookOutput);
+
   return allDocs;
 }
 

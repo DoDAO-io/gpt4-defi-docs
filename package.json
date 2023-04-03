@@ -34,6 +34,7 @@
   "dependencies": {
     "@dqbd/tiktoken": "^1.0.2",
     "@pinecone-database/pinecone": "^0.0.10",
+    "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.3",
     "langchain": "^0.0.44",
     "puppeteer": "^19.8.2"
