@@ -8,7 +8,7 @@
     "run": "nodemon",
     "build": "tsc",
     "index": "ts-node --esm src/indexer.ts",
-    "search": "ts-node --esm src/indexer.ts"
+    "search": "ts-node --esm src/searcher.ts"
   },
   "repository": {
     "type": "git",
