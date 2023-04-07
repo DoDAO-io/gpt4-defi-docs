@@ -7,8 +7,9 @@
     "test": "jest",
     "run": "nodemon",
     "build": "tsc",
-    "index": "ts-node --esm src/indexer.ts",
-    "search": "ts-node --esm src/searcher.ts"
+    "index": "ts-node  --esm src/indexer.ts",
+    "search": "ts-node --esm src/searcher.ts",
+    "discourse": "ts-node --esm src/discourse.ts"
   },
   "repository": {
     "type": "git",
