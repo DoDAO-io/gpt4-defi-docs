@@ -80,7 +80,8 @@ dotenv.config();
     await pineconeIndex.delete1({ deleteAll: true });
   
     const chat = await loadChat(messages);
-  
+
+    console.log('chat :', chat);
     console.log('start indexing chats :', chat.length);
     let pineconeStore = await PineconeStore.fromDocuments(chat, new OpenAIEmbeddings(), {
       pineconeIndex,
@@ -93,7 +94,7 @@ dotenv.config();
   async function loadChat(messages: string[]): Promise<LGCDocument[]> {
     let allDocs: LGCDocument[] = [];
     for (const message of messages) {
-      let docs=new LGCDocument({pageContent:message})
+      let docs=new LGCDocument({pageContent:message,metadata:{author:`author here`}})
       
       //const output = await split(docs);
   
