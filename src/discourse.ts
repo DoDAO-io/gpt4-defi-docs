@@ -2,18 +2,21 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 
 const discourseUrl = 'https://gov.uniswap.org/latest';
 
+async function checkFooterMessage(page: Page) {
+    const footerMessage = await page.$('div.footer-message');
+    return !!footerMessage;
+}
+
 // https://stackoverflow.com/a/53527984/440432
 async function autoScroll(page: Page): Promise<void> {
   await page.evaluate(async () => {
     await new Promise<void>((resolve) => {
-      let totalHeight = 0;
-      const distance = 100;
-      const timer = setInterval(() => {
+      const timer = setInterval(async () => {
         const scrollHeight = document.body.scrollHeight;
-        window.scrollBy(0, distance);
-        totalHeight += distance;
-
-        if (totalHeight >= scrollHeight - window.innerHeight) {
+        window.scrollTo(0, scrollHeight);
+        const isFooterMessagePresent = await checkFooterMessage(page);
+        if (isFooterMessagePresent) {
+          console.log("There are no more latest topics!");
           clearInterval(timer);
           resolve();
         }
@@ -59,9 +62,9 @@ async function discourse() {
 
   const hrefs: string[] = await getHrefs(page, 'tr.topic-list-item > td.main-link > span > a');
 
-  // console.log(hrefs);
+  console.log("total links:", hrefs.length);
 
-  const firstTen = hrefs.slice(0, 10);
+  const firstTen = hrefs.slice(-10);
 
   console.log('firstTen : ', firstTen);
 
