@@ -3,26 +3,51 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 const discourseUrl = 'https://gov.uniswap.org/latest';
 
 async function checkFooterMessage(page: Page) {
-    const footerMessage = await page.$('div.footer-message');
+    const footerMessage = await page.$('div.footer-message h3');
     return !!footerMessage;
 }
-
-// https://stackoverflow.com/a/53527984/440432
-async function autoScroll(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    await new Promise<void>((resolve) => {
-      const timer = setInterval(async () => {
-        const scrollHeight = document.body.scrollHeight;
-        window.scrollTo(0, scrollHeight);
+  
+async function autoScrollLatest(page: Page): Promise<void> {
+    let previousHeight = 0;
+    while (true) {
+      await page.evaluate(async () => {
+        await new Promise<void>((resolve) => {
+          const scrollHeight = document.body.scrollHeight;
+          window.scrollTo(0, scrollHeight);
+          setTimeout(resolve, 300);
+        });
+      });
+      const currentHeight = await page.evaluate(() => document.body.scrollHeight);
+      if (currentHeight === previousHeight) {
         const isFooterMessagePresent = await checkFooterMessage(page);
         if (isFooterMessagePresent) {
           console.log("There are no more latest topics!");
-          clearInterval(timer);
-          resolve();
+          break;
         }
-      }, 300);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      previousHeight = currentHeight;
+    }
+}
+  
+// https://stackoverflow.com/a/53527984/440432
+async function autoScrollDetails(page: Page): Promise<void> {
+    await page.evaluate(async () => {
+      await new Promise<void>((resolve) => {
+        let totalHeight = 0;
+        const distance = 200;
+        const timer = setInterval(() => {
+          const scrollHeight = document.body.scrollHeight;
+          window.scrollBy(0, distance);
+          totalHeight += distance;
+  
+          if (totalHeight >= scrollHeight - window.innerHeight) {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 300);
+      });
     });
-  });
 }
 
 async function getPageDetails(browser: Browser, url: string) {
@@ -33,7 +58,7 @@ async function getPageDetails(browser: Browser, url: string) {
     height: 800,
   });
 
-  await autoScroll(page);
+  await autoScrollDetails(page);
 
   const content = await page.$eval('div.container.posts', (e) => e.textContent);
 
@@ -58,13 +83,13 @@ async function discourse() {
     height: 800,
   });
 
-  await autoScroll(page);
+  await autoScrollLatest(page);
 
   const hrefs: string[] = await getHrefs(page, 'tr.topic-list-item > td.main-link > span > a');
 
   console.log("total links:", hrefs.length);
 
-  const firstTen = hrefs.slice(-10);
+  const firstTen = hrefs.slice(0, 10);
 
   console.log('firstTen : ', firstTen);
 
