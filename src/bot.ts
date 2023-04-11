@@ -14,11 +14,11 @@ dotenv.config();
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
   });
 
-  BOT.once(Events.ClientReady, async (c) => {
+  BOT.on(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
     const discordServer = c.guilds.cache.get(process.env.DISCORD_SERVER_ID);
     const channelIds = discordServer?.channels ? JSON.parse(JSON.stringify(discordServer.channels)).guild.channels : [];
-    console.log(`DEBUGchannelIDs:`,channelIds);
+    //console.log(`DEBUGchannelIDs:`,channelIds);
     const documents = await loadData(channelIds, c);
     console.log(`Done fetching documents`, documents);
     await indexChat(documents);
