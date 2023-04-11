@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, TextChannel, Partials } from 'discord.js';
+import { Client, GatewayIntentBits, Events } from 'discord.js';
 import { PineconeClient } from '@pinecone-database/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings';
 import { PineconeStore } from 'langchain/vectorstores';
@@ -11,21 +11,16 @@ dotenv.config();
 
 (async () => {
   const BOT = new Client({
-    intents: [
-      GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildBans,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
-    ],
-    partials: [Partials.Channel],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
   });
 
-  BOT.on('ready', async () => {
-    console.log(`Logged in as ${BOT.user.tag}!`);
-    const channel = BOT.channels.cache.get(process.env.CHANNEL_ID) as TextChannel;
-
-    const documents = await loadData(channel);
+  BOT.once(Events.ClientReady, async (c) => {
+    console.log(`Ready! Logged in as ${c.user.tag}`);
+    const discordServer = c.guilds.cache.get(process.env.DISCORD_SERVER_ID);
+    const channelIds = discordServer?.channels ? JSON.parse(JSON.stringify(discordServer.channels)).guild.channels : [];
+    console.log(`DEBUGchannelIDs:`,channelIds);
+    const documents = await loadData(channelIds, c);
+    console.log(`Done fetching documents`, documents);
     await indexChat(documents);
   });
 
