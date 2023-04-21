@@ -9,7 +9,7 @@
     "build": "tsc",
     "index": "ts-node --esm src/indexer.ts",
     "search": "ts-node --esm src/searcher.ts",
-    "load": "ts-node --esm src/discordLoader.ts",
+    "load": "ts-node --esm src/bot.ts",
     "discourse": "ts-node --esm src/discourse.ts"
   },
   "repository": {
