@@ -26,17 +26,17 @@ export async function loadData(channelIds: string[], BOT: Client): Promise<Docum
       results = results.concat(channelContent);
     }
   }
-  results=await split(results);
+  results = await split(results);
   return results;
 }
 
-interface Metadata {
+export interface Metadata {
   id: string;
   createdTimestamp: number;
   type: number;
   content: string;
   author: string;
-  atachments: string[];
+  atachments: string[] | undefined;
 }
 
 //readChannel reads all messages from a discord channel and returns them as an array of Documents with metadata
