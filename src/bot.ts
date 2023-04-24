@@ -3,7 +3,7 @@ import { PineconeClient } from '@pinecone-database/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings';
 import { PineconeStore } from 'langchain/vectorstores';
 import { Document as LGCDocument } from 'langchain/document';
-import { loadData } from './Loaders/discordLoader.js';
+import { loadData, Metadata } from './Loaders/discordLoader.js';
 
 import * as dotenv from 'dotenv';
 
@@ -45,7 +45,30 @@ async function indexChat(documents: LGCDocument[]) {
     pineconeIndex,
   });
   console.log('done indexing chat');
-
   console.log('textKey', pineconeStore.textKey);
+  await runDocumentSearch();
 }
 
+async function runDocumentSearch() {
+  const client = new PineconeClient();
+  await client.init({
+    apiKey: process.env.PINECONE_API_KEY!,
+    environment: process.env.PINECONE_ENVIRONMENT!,
+  });
+  const pineconeIndex = client.Index(process.env.PINECONE_INDEX!);
+
+  console.log(`index stats: before operations \n`, await pineconeIndex.describeIndexStats1(), `\n\n`);
+
+  //await deleteById(pineconeIndex,"1098960246279516261")
+  await deleteByTime(pineconeIndex, 1682167267717);
+
+  console.log(`index stats: after operations \n`, await pineconeIndex.describeIndexStats1(), `\n\n`);
+}
+//This function deletes vectors with the discord id passed in
+async function deleteById(pineconeIndex, id: string) {
+  await pineconeIndex._delete({ deleteRequest: { filter: { id: { $eq: id } } } });
+}
+//This function deletes vectors with a timestamp less than the timestamp passed in
+async function deleteByTime(pineconeIndex, createdTimestamp: number) {
+  await pineconeIndex._delete({ deleteRequest: { filter: { createdTimestamp: { $lt: createdTimestamp } } } });
+}
